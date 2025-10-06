@@ -16,6 +16,11 @@ public class Student implements Serializable {
     //variables/attributes for students
    private String studentNo;
    private String name;
+   private String surname;
+   private char gender;
+   private String phoneNo;
+   private String emailAdd;
+   private String dob;
    private transient String password;
    
    //constructor
@@ -23,6 +28,11 @@ public class Student implements Serializable {
        this.studentNo = studentNo;
        this.name = name;
        this.password = password;
+       this.surname = surname;
+       this.dob = dob;
+       this.emailAdd = emailAdd;
+       this.phoneNo = phoneNo;
+       this.gender = gender;
        
    }
    
@@ -39,6 +49,26 @@ public class Student implements Serializable {
        return password;
    }
    
+   public String getSurname() {
+       return surname;
+   }
+   
+   public String getDOB() {
+       return dob;
+   }
+   
+   public String getPhoneNo() {
+       return phoneNo;
+   }
+   
+   public String getEmailAdd() {
+       return emailAdd;
+   }
+   
+   public char getGender() {
+     return gender;  
+   }
+   
    //Setters
    public void setStudentNo(String studentNo){
        this.studentNo = studentNo;
@@ -50,6 +80,26 @@ public class Student implements Serializable {
    
    public void setPassword(String password){
        this.password = password;
+   }
+   
+   public void setSurname(String surname) {
+       this.surname = surname;
+   }
+   
+   public void setGender(char gender) {
+       this.gender = gender;
+   }
+   
+   public void setPhoneNo(String phoneNo) {
+       this.phoneNo = phoneNo;
+   }
+   
+   public void setEmailAdd(String emailAdd) {
+       this.emailAdd = emailAdd;
+   }
+   
+   public void setDob(String dob) {
+       this.dob = dob;
    }
    
    //custom serialization
@@ -67,7 +117,12 @@ public class Student implements Serializable {
 public String toString() {
     return "Student{" +
             "studentNo='" + studentNo + '\'' +
-            ", name='" + name + '\'' +
+            "name='" + name + '\'' +
+            "surname='" + surname + '\'' +
+            "gender='" + gender + '\'' +
+            "emailAdd='" + emailAdd + '\'' +
+            "phoneNo='" + phoneNo + '\'' + 
+            ", dob='" + dob + '\'' +
             '}';
 }
 }
