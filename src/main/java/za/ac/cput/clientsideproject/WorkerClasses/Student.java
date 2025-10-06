@@ -24,7 +24,7 @@ public class Student implements Serializable {
    private transient String password;
    
    //constructor
-   public Student(String studentNo, String name, String password){
+   public Student(String studentNo, String name, String surname, String password, char gender, String dob, String phoneNo, String emailAdd){
        this.studentNo = studentNo;
        this.name = name;
        this.password = password;

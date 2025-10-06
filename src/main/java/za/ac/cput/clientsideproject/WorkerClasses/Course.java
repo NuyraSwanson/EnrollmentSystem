@@ -18,7 +18,7 @@ public class Course implements Serializable {
     private int duration;
     
     //constructor
-    public Course(String courseID, String courseName, int credits){
+    public Course(String courseID, String courseName, int credits, String department, int duration){
     this.courseID = courseID;
     this.courseName = courseName;
     this.credits = credits;
