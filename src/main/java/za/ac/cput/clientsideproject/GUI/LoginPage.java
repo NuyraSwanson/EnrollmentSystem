@@ -11,10 +11,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import za.ac.cput.clientsideproject.ClientSideProject;
 
 /**
  * ADP final assignment
@@ -28,9 +30,14 @@ public class LoginPage extends JFrame {
     private JPanel btmPanel, topPanel, centerPanel;
     private CardLayout cardLayout;
     
+    private ClientSideProject client;
+    
     String[] role = {"Student", "Admin"};
     
-    public LoginPage() {
+    public LoginPage(ClientSideProject client) {
+        this.client = client;
+        
+        
      //Setting up the frame
         setTitle("Student/Admin Enrollment System");
         setSize(850, 750);
@@ -101,6 +108,27 @@ public class LoginPage extends JFrame {
         btnLogin.setForeground(Color.WHITE);
         add(btnLogin);
 
-        setVisible(true);   
+        setVisible(true);
+        
+        btnLogin.addActionListener(e -> {
+            String role = cmbRole.getSelectedItem().toString();
+            String username = txtUsername.getText();
+            String password = txtPassword.getText();
+            String studentNo = txtUsername.getText();
+            
+            String result = client.login(role, username, password);
+            
+            if (result.equals("STUDENT_SUCCESS!")) {
+                JOptionPane.showMessageDialog(this, "Welcome, " + username);
+                new StudentGUI(client, studentNo).setVisible(true);
+                this.dispose();
+            }else if (result.equals("ADMIN_SUCCESS!")) {
+                JOptionPane.showMessageDialog(this, "Welcome, Admin " + username);
+                new AdminGUI(client, username).setVisible(true);
+                this.dispose();
+            }else {
+                JOptionPane.showMessageDialog(this, "Login failed!");
+            }
+        });
     }
 }

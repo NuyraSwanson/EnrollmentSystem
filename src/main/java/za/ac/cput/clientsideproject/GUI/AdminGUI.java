@@ -8,11 +8,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -20,20 +22,29 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import javax.swing.table.DefaultTableModel;
+import za.ac.cput.clientsideproject.ClientSideProject;
+import za.ac.cput.shared.WorkerClasses.Admin;
+import za.ac.cput.shared.WorkerClasses.Course;
+import za.ac.cput.shared.WorkerClasses.Student;
 
 /**
  * ADP final assignment
  */
 
 public class AdminGUI extends JFrame {
+    private ClientSideProject client;
+    private String adminUsername;
     //Swing components
-   private JLabel lblWelcome, imgLabel;
+    private JLabel lblWelcome, imgLabel;
     private JPanel menuPanel, contentPanel;
     private JButton btnProfile, btnCourses, btnLogout, btnStudents;
     private JTable tblCourses;
     private CardLayout cardLayout; 
     
-    public AdminGUI() {
+    public AdminGUI(ClientSideProject client, String adminUsername) {
+      this.adminUsername = adminUsername;
+      this.client = client;
+      
       setTitle("Admin account");
       setSize(1000, 750);
       setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -254,7 +265,7 @@ public class AdminGUI extends JFrame {
       lblCourses.setBounds(300, 10, 300, 30);
       cardCourses.add(lblCourses);
 
-      String[] courseCols = {"Course ID", "Course Name", "Credits", "Lecturer", "Department"};
+      String[] courseCols = {"Course ID", "Course Name", "Credits"};
       JTable tblCourses = new JTable(new DefaultTableModel(null, courseCols));
       JScrollPane scrollCourses = new JScrollPane(tblCourses);
       scrollCourses.setBounds(30, 50, 750, 550);
@@ -395,6 +406,8 @@ public class AdminGUI extends JFrame {
      txtCourseName.setBounds(600, 140, 150, 25);
      cardAdd.add(lblCourseName);
      cardAdd.add(txtCourseName);
+     
+     JTextField txtPassword = new JTextField();
 
      JLabel lblCredits = new JLabel("Credits:");
      lblCredits.setForeground(Color.WHITE);
@@ -430,7 +443,107 @@ public class AdminGUI extends JFrame {
       btnStudents.addActionListener(e -> cardLayout.show(contentPanel, "Students"));
       btnLogout.addActionListener(e -> {
        this.dispose();
-       new LoginPage().setVisible(true);
+       new LoginPage(client).setVisible(true);
+      });
+      
+      btnCourses.addActionListener(e -> {
+       List<Course> courses = client.viewCourses();
+       if (courses != null && !courses.isEmpty()) {
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Course ID", "Course Name", "Credits"}, 0);
+        for (Course c : courses) {
+            model.addRow(new Object[]{c.getCourseID(), c.getCourseName(), c.getCredits()});
+        }
+        tblCourses.setModel(model);
+    } else {
+        JOptionPane.showMessageDialog(this, "No courses found.");
+    }
+      });
+      
+      btnAddCourse.addActionListener(e -> {
+       List<Course> courses = client.viewCourses();
+       if (courses != null && !courses.isEmpty()) {
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Course ID", "Course Name", "Credits", "Department", "Duration"}, 0);
+        for (Course c : courses) {
+            model.addRow(new Object[]{c.getCourseID(), c.getCourseName(), c.getCredits()});
+        }
+        tblCourses.setModel(model);
+    } else {
+        JOptionPane.showMessageDialog(this, "No courses found.");
+    }   
+      });
+      
+      btnStudents.addActionListener(e -> {
+       List<Student> students = client.viewStudents();
+    if (students != null && !students.isEmpty()) {
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Student ID", "Name", "Surname", "Email address", "Phone number"}, 0);
+        for (Student s : students) {
+            model.addRow(new Object[]{s.getStudentNo(), s.getName(), s.getSurname(), s.getEmailAdd(), s.getPhoneNo() });
+        }
+        tblStudents.setModel(model);
+    } else {
+        JOptionPane.showMessageDialog(this, "No students found.");
+    }   
+      });
+      
+      btnAddStudent.addActionListener(e -> {
+       List<Student> students = client.viewStudents();
+    if (students != null && !students.isEmpty()) {
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Student ID", "Name", "Surname", "Email address", "Phone number"}, 0);
+        for (Student s : students) {
+            model.addRow(new Object[]{s.getStudentNo(), s.getName(), s.getSurname(), s.getEmailAdd(), s.getPhoneNo() });
+        }
+        tblStudents.setModel(model);
+    } else {
+        JOptionPane.showMessageDialog(this, "No students found.");
+    }      
+      });
+      
+      btnAddStudents.addActionListener(e -> {
+        String studentNo = txtStudNo.getText().trim();
+        String name = txtAddName.getText().trim();
+        String surname = txtAddSurname.getText().trim();
+        String password = txtPassword.getText().trim();
+        String emailAdd = txtStudEmail.getText().trim();
+        String phoneNo = txtContNo.getText().trim();
+
+    Student s = new Student(studentNo, name, surname, password, emailAdd, phoneNo);
+    String response = client.addStudent(s);
+
+    JOptionPane.showMessageDialog(this,
+        response.equals("STUDENT_ADDED") ? "Student added successfully!" : "Failed to add student.");  
+      });
+      
+      btnAddCours.addActionListener(e -> {
+        String id = txtCourseId.getText().trim();
+        String name = txtCourseName.getText().trim();
+        int credits = Integer.parseInt(txtCredits.getText().trim());
+
+        Course c = new Course(id, name, credits);
+        String response = client.addCourse(c);
+
+        JOptionPane.showMessageDialog(this,
+        response.equals("COURSE_ADDED") ? "Course added successfully!" : "Failed to add course.");  
+      });
+      
+      btnProfile.addActionListener(e -> {
+       try {
+           List<Admin> admins = client.viewAdmins();
+           
+           for (Admin admin : admins) {
+               if (admin.getAdminId().equals(adminUsername)) {
+                   txtName.setText(admin.getName());
+                   txtSurname.setText(admin.getSurname());
+                   txtEmail.setText(admin.getEmail());
+                   txtContact.setText(admin.getContactNo());
+                   txtRole.setText(admin.getRole());
+                   txtAdminId.setText(admin.getAdminId());
+                   break;
+               }
+           }
+       }catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error loading profile: " + ex.getMessage());
+        ex.printStackTrace();
+       } 
       });
       
       add(menuPanel, BorderLayout.WEST);

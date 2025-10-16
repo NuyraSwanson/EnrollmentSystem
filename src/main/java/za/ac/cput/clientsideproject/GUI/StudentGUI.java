@@ -9,15 +9,24 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
+import za.ac.cput.clientsideproject.ClientSideProject;
 import za.ac.cput.clientsideproject.GUI.LoginPage;
+import za.ac.cput.shared.WorkerClasses.Course;
+import za.ac.cput.shared.WorkerClasses.Enroll;
+import za.ac.cput.shared.WorkerClasses.Student;
 
 /**
  * ADP final assignment
  */
 
 public class StudentGUI extends JFrame {
+    private ClientSideProject client;
+    private String studentNo;
+    
   //GUI swing components
     private JLabel lblWelcome, imgLabel;
     private JPanel menuPanel, contentPanel;
@@ -25,7 +34,10 @@ public class StudentGUI extends JFrame {
     private JTable tblCourses;
     private CardLayout cardLayout;
     
-    public StudentGUI() {
+    public StudentGUI(ClientSideProject client, String studentNo) {
+        this.client = client;
+        this.studentNo = studentNo;
+        
       setTitle("Student account");
       setSize(1050, 750);
       setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -276,7 +288,7 @@ public class StudentGUI extends JFrame {
       card3.add(lblCourses, BorderLayout.NORTH);
       card3.add(btnBackCourse, BorderLayout.SOUTH);
       
-      String[] columnNames = {"Course ID", "Course Name", "Credits", "Lecturer","Department"};
+      String[] columnNames = {"Course ID", "Course Name", "Credits"};
       Object[][] data = {}; 
       JTable tblCourses = new JTable(data, columnNames);
       tblCourses.setFillsViewportHeight(true);
@@ -335,6 +347,11 @@ public class StudentGUI extends JFrame {
    cmbCourse.addItem("Select a course...");
    cmbCourse.setBounds(200, 180, 200, 25);
    enrollPanel.add(cmbCourse);
+   
+   List<Course> courses = client.viewCourses();
+   for (Course c : courses) {
+       cmbCourse.addItem(c.getCourseID() + " - " + c.getCourseName());
+   }
 
     JLabel lblSemester = new JLabel("Year of study:");
     lblSemester.setForeground(Color.WHITE);
@@ -368,7 +385,67 @@ public class StudentGUI extends JFrame {
       btnEnroll.addActionListener(e -> cardLayout.show(contentPanel, "Enrollment"));
       btnLogout.addActionListener(e -> {
        this.dispose();
-       new LoginPage().setVisible(true);
+       new LoginPage(client).setVisible(true);
+      });
+      
+      btnCourses.addActionListener(e -> {
+         try {
+
+        // create a DefaultTableModel to hold the data
+        DefaultTableModel model = new DefaultTableModel(
+            new Object[]{"Course ID", "Course Name", "Credits"}, 0
+        );
+
+        // loop through the list and add rows
+        for (Course c : courses) {
+            model.addRow(new Object[]{c.getCourseID(), c.getCourseName(), c.getCredits()});
+        }
+
+        // set the model to your JTable
+        tblCourses.setModel(model);
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error loading courses: " + ex.getMessage());
+        ex.printStackTrace();
+    } 
+      });
+      
+      btnSubmit.addActionListener(e -> {
+       String studentID = txtStud.getText().trim();
+       String selected = (String) cmbCourse.getSelectedItem();
+
+    if (studentID.isEmpty() || selected == null) {
+        JOptionPane.showMessageDialog(this, "Please enter your ID and select a course!");
+        return;
+    }
+
+    String courseID = selected.split(" - ")[0];
+    Enroll enrollObj = new Enroll(studentID, courseID);
+
+    String response = client.enroll(enrollObj);
+    JOptionPane.showMessageDialog(this,
+        response.equals("ENROLL_SUCCESS") ? "Enrollment successful!" : "Enrollment failed!");
+      });
+      
+      btnProfile.addActionListener(e -> {
+       try {
+           List<Student> students = client.viewStudents();
+           
+           for (Student s : students) {
+               if (s.getStudentNo().equals(studentNo)) {
+                   txtName.setText(s.getName());
+                   txtSurname.setText(s.getSurname());
+                   txtStudNo.setText(s.getStudentNo());
+                   
+                   txtEmail.setText(s.getEmailAdd());
+                   
+                   txtContNo.setText(s.getPhoneNo());
+                   break;
+               }
+           }
+       }catch (Exception ex) {
+           JOptionPane.showMessageDialog(this, "Error loading profile: " + ex.getMessage());
+       }   
       });
       
       add(menuPanel, BorderLayout.WEST);
