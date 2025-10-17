@@ -34,6 +34,7 @@ import za.ac.cput.shared.WorkerClasses.Student;
 public class AdminGUI extends JFrame {
     private ClientSideProject client;
     private String adminUsername;
+    
     //Swing components
     private JLabel lblWelcome, imgLabel;
     private JPanel menuPanel, contentPanel;

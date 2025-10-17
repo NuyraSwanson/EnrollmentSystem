@@ -5,16 +5,13 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import za.ac.cput.clientsideproject.ClientSideProject;
-import za.ac.cput.clientsideproject.GUI.LoginPage;
 import za.ac.cput.shared.WorkerClasses.Course;
 import za.ac.cput.shared.WorkerClasses.Enroll;
 import za.ac.cput.shared.WorkerClasses.Student;
@@ -391,17 +388,14 @@ public class StudentGUI extends JFrame {
       btnCourses.addActionListener(e -> {
          try {
 
-        // create a DefaultTableModel to hold the data
         DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Course ID", "Course Name", "Credits"}, 0
         );
 
-        // loop through the list and add rows
         for (Course c : courses) {
             model.addRow(new Object[]{c.getCourseID(), c.getCourseName(), c.getCredits()});
         }
 
-        // set the model to your JTable
         tblCourses.setModel(model);
 
     } catch (Exception ex) {
